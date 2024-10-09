@@ -27,6 +27,10 @@ window.onload = function(){
 
         var hourlist = [];
 
+        //List of train lines used
+        var lineList = [];
+        var journeyList = [];
+
         //Fill the List of Train Types
         for(var i in result){
           typelist.push(result[i].type);
@@ -37,7 +41,16 @@ window.onload = function(){
           citylist.push(result[i].to_name);
         }
 
+        //Fill the List of Lines
+        for(var i in result){
+          if (result[i].line != null && result[i].line != "") {
+            lineList.push(result[i].line)
+          }
+        }
 
+        for(var i in result){
+          journeyList.push(result[i].no)
+        }
 
         for(var i in result){
           datelist.push(new Date(result[i].sched_dep_ts * 1000));
@@ -241,9 +254,18 @@ window.onload = function(){
 
         }
 
+        function count(arr) {
+          const counts = {};
+          arr.forEach((num) => {
+            counts[num] = (counts[num] || 0) + 1;
+          });
+          return counts;
+        }
+
         //Load google charts script
         google.charts.load('current', {'packages':['corechart']});
         google.charts.setOnLoadCallback(drawChart);
+
         function drawChart() {
 
           //Data for Zugarten Pie Chart
@@ -314,6 +336,8 @@ window.onload = function(){
           chart.draw(datacomparison, optionsccomparison);
 
 
+
+
           var stundendata = new google.visualization.DataTable();
           stundendata.addColumn('string', 'Stunde');
           stundendata.addColumn('number', 'Anzahl Fahrten');
@@ -334,6 +358,57 @@ window.onload = function(){
           var visualization = new google.visualization.ColumnChart(document.getElementById('histogram'));
           visualization.draw(stundendata, histogramoptions);
 
+          // Data for line count diagram
+          var dataNumbers = new google.visualization.DataTable();
+          dataNumbers.addColumn('string', 'LineNumber');
+          dataNumbers.addColumn('number', 'Count');
+
+          const counts = count(lineList);
+          const filteredCounts = Object.entries(counts)
+              .filter(([key, value]) => value > 1)
+              .sort((a, b) => b - a);
+
+          for (const [key, value] of filteredCounts) {
+            dataNumbers.addRow([key, value]); // Key als String verwenden
+          }
+
+          // Optionen für das Häufigkeitsdiagramm
+          var optionsNumbers = {
+            title: 'Fahrten mit bestimmten Zuglinien',
+            hAxis: { title: 'Liniennummer' },
+            vAxis: { title: 'Anzahl Fahrten' },
+            legend: 'none',
+            width: 1920
+          };
+
+          // Erstellung des Häufigkeitsdiagramms
+          var chartLine = new google.visualization.ColumnChart(document.getElementById('NumbersChart'));
+          chartLine.draw(dataNumbers, optionsNumbers);
+
+          // Data for journey diagram
+          var dataJourneys = new google.visualization.DataTable();
+          dataJourneys.addColumn('string', 'journeyNumber');
+          dataJourneys.addColumn('number', 'Count');
+
+          const countsJourney = count(journeyList);
+          const filteredCountsJourney = Object.entries(countsJourney)
+              .filter(([key, value]) => value > 1)
+              .sort((a, b) => b - a);
+
+          for (const [key, value] of filteredCountsJourney) {
+            dataJourneys.addRow([key, value]); // Key als String verwenden
+          }
+
+          var optionsNumbers = {
+            title: 'Fahrten mit bestimmten Zugnummern',
+            hAxis: { title: 'Fahrtnummer' },
+            vAxis: { title: 'Anzahl Fahrten' },
+            legend: 'none',
+            width: 1920
+          };
+
+          var chartJourney = new google.visualization.ColumnChart(document.getElementById('JourneyChart'));
+          chartJourney.draw(dataJourneys, optionsNumbers);
         }
       };
 
