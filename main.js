@@ -28,6 +28,8 @@ window.onload = function() {
       var hourlist = [];
       //List of operators (e.g. DB Fernverkehr AG)
       var operatorlist = [];
+      //List of train lines
+      var linelist = [];
 
       //Fill the List of Train Types
       for (var i in result) {
@@ -54,6 +56,13 @@ window.onload = function() {
         }
       }
 
+      //Fill the list of train lines
+      for (var i in result) {
+        if (result[i].line != null) {
+          linelist.push(result[i].line);
+        }
+      }
+
       //Variable that counts all rides
       var allrides = typelist.length;
 
@@ -62,6 +71,7 @@ window.onload = function() {
       citylistsorted = new Set(citylist)
       hourlistsorted = new Set(hourlist)
       operatorlistsorted = new Set(operatorlist)
+      linelistsorted = new Set(linelist)
 
       //Create a List of Traintypes with a counter of its occurances
       var typelistwithcounter = [];
@@ -129,6 +139,24 @@ window.onload = function() {
         operatorlistwithcounter.push([operatorcounter, operator]);
       }
 
+      //Create a list of train lines with a counter of its occurances
+      var linelistwithcounter = [];
+
+      for (line of linelistsorted) {
+
+        var linecounter = 0;
+
+        for (currentitem of result) {
+          if (
+              currentitem.line != null &&
+              currentitem.line == line
+          ) {
+            linecounter++;
+          }
+        }
+        linelistwithcounter.push([linecounter, line]);
+      }
+
       //Create Sorted List that sorts the list descending by the counter
       sortedhourlistwithcounter = hourlistwithcounter.sort(function(a, b) {
         return a[0] - b[0];
@@ -142,7 +170,9 @@ window.onload = function() {
       sortedoperatorlistwithcounter = operatorlistwithcounter.sort(function(a, b) {
         return b[0] - a[0];
       });
-
+      sortedlinelistwithcounter = linelistwithcounter.sort(function(a, b) {
+        return b[0] - a[0];
+      });
 
       //function to round number to 2 decimals
       function roundToTwo(num) {
@@ -365,7 +395,7 @@ window.onload = function() {
           dataoperator.addRow([item[1], item[0]]);
         }
 
-        //Options for City Pie Chart
+        //Options for Operator Pie Chart
         var optionsoperator = {
           title: 'Betreiber',
           chartArea: {
@@ -374,9 +404,30 @@ window.onload = function() {
           }
         };
 
-        //creation of city pie chart
+        //creation of Operator pie chart
         var chartoperator = new google.visualization.PieChart(document.getElementById('OperatorChart'));
         chartoperator.draw(dataoperator, optionsoperator);
+
+        //Data for line Pie Chart
+        var dataline = new google.visualization.DataTable();
+        dataline.addColumn('string', 'word');
+        dataline.addColumn('number', 'count');
+        for (item of sortedlinelistwithcounter) {
+          dataline.addRow([item[1], item[0]]);
+        }
+
+        //Options for line Pie Chart
+        var optionsline = {
+          title: 'Linie',
+          chartArea: {
+            left: "5%",
+            width: "80%"
+          }
+        };
+
+        //creation of line pie chart
+        var chartline = new google.visualization.PieChart(document.getElementById('LineChart'));
+        chartline.draw(dataline, optionsline);
 
         //data for klassifizierungs chart
         var datacomparison = new google.visualization.DataTable();
