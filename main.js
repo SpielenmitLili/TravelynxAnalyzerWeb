@@ -215,6 +215,8 @@ window.onload = function() {
 
                                 if (resolvedName) {
                                     brcounts[resolvedName] = (brcounts[resolvedName] || 0) + 1;
+                                } else {
+                                    brcounts[parseInt(br)] = (brcounts[parseInt(br)] || 0) + 1;
                                 }
                             }
                         }
