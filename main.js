@@ -17,12 +17,14 @@ window.onload = function() {
                 }
 
                 if (row.uic_regex && row.short_name) {
-                    const brRegexPart = extractBaureihenRegex(row.uic_regex);
-                    if (brRegexPart) {
+                    try {
+                        const regex = new RegExp("^" + row.uic_regex);
                         brMapping.push({
-                            regex: new RegExp("^" + brRegexPart),
+                            regex: regex,
                             shortName: row.short_name
                         });
+                    } catch (e) {
+                        console.warn("Ungültige Regex:", row.uic_regex);
                     }
                 }
             }
@@ -33,9 +35,9 @@ window.onload = function() {
         return match ? match[1] : null;
     }
 
-    function resolveShortName(brCode) {
+    function resolveShortName(fullUicCode) {
         for (let entry of brMapping) {
-            if (entry.regex.test(brCode)) {
+            if (entry.regex.test(fullUicCode)) {
                 return entry.shortName;
             }
         }
@@ -211,7 +213,7 @@ window.onload = function() {
                                 /^[0-9]+$/.test(id)
                             ) {
                                 let br = id.substring(4, 8);
-                                let resolvedName = resolveShortName(br);
+                                let resolvedName = resolveShortName(id);
 
                                 if (resolvedName) {
                                     brcounts[resolvedName] = (brcounts[resolvedName] || 0) + 1;
