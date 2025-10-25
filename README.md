@@ -18,3 +18,6 @@ after that you will see statistics like this
 ![Charts](https://github.com/thisjade/TravelynxAnalyzerWeb/blob/6259e9597f5d8d41f128660643fb23920e7a6f9d/stats.png)
 
 ![Table](https://github.com/thisjade/TravelynxAnalyzerWeb/blob/6259e9597f5d8d41f128660643fb23920e7a6f9d/table.png)
+
+### Lizenzhinweis
+ie Baureihen-Daten basieren auf dem Open-Source-Projekt [autinerd/baureihen-mapping](https://github.com/autinerd/baureihen-mapping) und stehen unter der [MIT-Lizenz](https://opensource.org/licenses/MIT)
