@@ -1,48 +1,48 @@
 window.onload = function() {
-    document.getElementById('import').onclick = function() {
 
-        // Map Baureihen
-        let brMapping = [];
+    // Map Baureihen
+    let brMapping = [];
 
-        fetch("/baureihen.csv")
-            .then(response => response.text())
-            .then(csvText => {
-                const lines = csvText.split("\n").filter(line => line.trim() !== "");
-                const header = lines[0].split(";");
+    fetch("/baureihen.csv")
+        .then(response => response.text())
+        .then(csvText => {
+            const lines = csvText.split("\n").filter(line => line.trim() !== "");
+            const header = lines[0].split(";");
 
-                for (let i = 1; i < lines.length; i++) {
-                    const cols = lines[i].split(";");
-                    const row = {};
-                    for (let j = 0; j < header.length; j++) {
-                        row[header[j]] = cols[j];
-                    }
-
-                    if (row.uic_regex && row.short_name) {
-                        const brRegexPart = extractBaureihenRegex(row.uic_regex);
-                        if (brRegexPart) {
-                            brMapping.push({
-                                regex: new RegExp("^" + brRegexPart),
-                                shortName: row.short_name
-                            });
-                        }
-                    }
+            for (let i = 1; i < lines.length; i++) {
+                const cols = lines[i].split(";");
+                const row = {};
+                for (let j = 0; j < header.length; j++) {
+                    row[header[j]] = cols[j];
                 }
-            });
 
-        function extractBaureihenRegex(uicRegex) {
-            const match = uicRegex.match(/^[0-9]{4}(.+)/);
-            return match ? match[1] : null;
-        }
-
-        function resolveShortName(brCode) {
-            for (let entry of brMapping) {
-                if (entry.regex.test(brCode)) {
-                    return entry.shortName;
+                if (row.uic_regex && row.short_name) {
+                    const brRegexPart = extractBaureihenRegex(row.uic_regex);
+                    if (brRegexPart) {
+                        brMapping.push({
+                            regex: new RegExp("^" + brRegexPart),
+                            shortName: row.short_name
+                        });
+                    }
                 }
             }
-            return null;
-        }
+        });
 
+    function extractBaureihenRegex(uicRegex) {
+        const match = uicRegex.match(/^[0-9]{4}(.+)/);
+        return match ? match[1] : null;
+    }
+
+    function resolveShortName(brCode) {
+        for (let entry of brMapping) {
+            if (entry.regex.test(brCode)) {
+                return entry.shortName;
+            }
+        }
+        return null;
+    }
+
+    document.getElementById('import').onclick = function() {
         var files = document.getElementById('customFile').files;
 
         document.getElementById('import').disabled = true;
