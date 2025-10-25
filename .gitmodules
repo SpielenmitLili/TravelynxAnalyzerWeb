@@ -1,0 +1,3 @@
+[submodule "baureihen-mapping"]
+	path = baureihen-mapping
+	url = https://github.com/autinerd/baureihen-mapping

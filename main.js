@@ -3,7 +3,7 @@ window.onload = function() {
     // Map Baureihen
     let brMapping = [];
 
-    fetch("/baureihen.csv")
+    fetch("baureihen-mapping/baureihen.csv")
         .then(response => response.text())
         .then(csvText => {
             const lines = csvText.split("\n").filter(line => line.trim() !== "");
