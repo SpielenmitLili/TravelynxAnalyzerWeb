@@ -1,6 +1,48 @@
 window.onload = function() {
     document.getElementById('import').onclick = function() {
 
+        // Map Baureihen
+        let brMapping = [];
+
+        fetch("/baureihen.csv")
+            .then(response => response.text())
+            .then(csvText => {
+                const lines = csvText.split("\n").filter(line => line.trim() !== "");
+                const header = lines[0].split(";");
+
+                for (let i = 1; i < lines.length; i++) {
+                    const cols = lines[i].split(";");
+                    const row = {};
+                    for (let j = 0; j < header.length; j++) {
+                        row[header[j]] = cols[j];
+                    }
+
+                    if (row.uic_regex && row.short_name) {
+                        const brRegexPart = extractBaureihenRegex(row.uic_regex);
+                        if (brRegexPart) {
+                            brMapping.push({
+                                regex: new RegExp("^" + brRegexPart),
+                                shortName: row.short_name
+                            });
+                        }
+                    }
+                }
+            });
+
+        function extractBaureihenRegex(uicRegex) {
+            const match = uicRegex.match(/^[0-9]{4}(.+)/);
+            return match ? match[1] : null;
+        }
+
+        function resolveShortName(brCode) {
+            for (let entry of brMapping) {
+                if (entry.regex.test(brCode)) {
+                    return entry.shortName;
+                }
+            }
+            return null;
+        }
+
         var files = document.getElementById('customFile').files;
 
         document.getElementById('import').disabled = true;
@@ -63,8 +105,12 @@ window.onload = function() {
                         if (Array.isArray(group.wagons) && group.wagons.length > 0) {
                             var firstWagon = group.wagons[0];
                             var id = firstWagon.id;
-                            if (typeof id === "string" && id.length >= 8) {
-                                var extracted = id.substring(4, 8).replace(/^0+/, "");
+                            if (
+                                typeof id === "string" &&
+                                id.length >= 8 &&
+                                /^[0-9]+$/.test(id) // prüft, ob die ID nur aus Ziffern besteht
+                            ) {
+                                var extracted = id.substring(4, 8);
                                 brlist.push(extracted);
                             }
                         }
@@ -158,9 +204,18 @@ window.onload = function() {
                         if (Array.isArray(group.wagons) && group.wagons.length > 0) {
                             let firstWagon = group.wagons[0];
                             let id = firstWagon.id;
-                            if (typeof id === "string" && id.length >= 8) {
-                                let br = id.substring(4, 8).replace(/^0+/, "");
-                                brcounts[br] = (brcounts[br] || 0) + 1;
+                            // only numbers | skips for example ECs by ÖBB, CD etc.
+                            if (
+                                typeof id === "string" &&
+                                id.length >= 8 &&
+                                /^[0-9]+$/.test(id)
+                            ) {
+                                let br = id.substring(4, 8);
+                                let resolvedName = resolveShortName(br);
+
+                                if (resolvedName) {
+                                    brcounts[resolvedName] = (brcounts[resolvedName] || 0) + 1;
+                                }
                             }
                         }
                     }
