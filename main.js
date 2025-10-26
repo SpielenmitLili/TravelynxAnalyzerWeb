@@ -218,7 +218,15 @@ window.onload = function() {
                                 if (resolvedName) {
                                     brcounts[resolvedName] = (brcounts[resolvedName] || 0) + 1;
                                 } else {
-                                    brcounts[parseInt(br)] = (brcounts[parseInt(br)] || 0) + 1;
+                                    // Some fixes for BRs not resolved yet
+                                    if (br == "812" || br == "5812") { // ICE 4
+                                        br = "ICE 4"
+                                        brcounts[parseInt(br)] = (brcounts[parseInt(br)] || 0) + 1;
+                                    } else if (br == "3681" || br == "2635" || br == "8635" || br == "8681" || br == "2675" || br == "2681" || br == "3635") { // Einzelne Wagen
+                                        // Skip for now
+                                    } else {
+                                        brcounts[parseInt(br)] = (brcounts[parseInt(br)] || 0) + 1;
+                                    }
                                 }
                             }
                         }
