@@ -49,9 +49,18 @@ window.onload = function() {
 
       //Fill the list of operators
       for (var i in result) {
-        if (result[i].user_data && Array.isArray(result[i].user_data.operators)) {
-          operatorlist.push(...result[i].user_data.operators);
-        }
+          if (result[i].user_data) {
+              var userData = result[i].user_data;
+
+              // DBRIS & HAFAS Backends
+              if (Array.isArray(userData.operators)) {
+                  operatorlist.push(...userData.operators);
+              }
+              // EFA & MOTIS Backends
+              else if (typeof userData.operator === 'string') {
+                  operatorlist.push(userData.operator);
+              }
+          }
       }
 
       //Variable that counts all rides
@@ -118,13 +127,24 @@ window.onload = function() {
         let operatorcounter = 0;
 
         for (let currentitem of result) {
-          if (
-              currentitem.user_data &&
-              Array.isArray(currentitem.user_data.operators) &&
-              currentitem.user_data.operators.includes(operator)
-          ) {
-            operatorcounter++;
-          }
+            if (currentitem.user_data) {
+                const userData = currentitem.user_data;
+
+                // DBRIS & HAFAS Backends
+                if (
+                    Array.isArray(userData.operators) &&
+                    userData.operators.includes(operator)
+                ) {
+                    operatorcounter++;
+                }
+                // EFA & MOTIS Backends
+                else if (
+                    typeof userData.operator === 'string' &&
+                    userData.operator === operator
+                ) {
+                    operatorcounter++;
+                }
+            }
         }
         operatorlistwithcounter.push([operatorcounter, operator]);
       }
