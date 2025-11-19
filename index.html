@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 
@@ -26,77 +27,132 @@
     </div>
 </div>
 
-<!-- Charts -->
-<div class="row" style="margin-left: 0px;">
-    <div id="classesChart" style="width:100%; max-width:900px; height:200px;"></div>
-</div>
-
-<div class="row" style="margin-left: 0px;">
-    <div id="histogram" style="width:100%; max-width:900px; height:500px;"></div>
-</div>
-
+<!-- Navigationsleiste -->
 <div class="row">
-    <div class="col">
-        <div id="TypeChart" style="width:100%; max-width:500px; height:500px;">
+    <div class="col-12">
+        <ul class="nav nav-pills bg-light p-2" id="viewSwitcher" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="dashboard-tab" data-view="dashboard" href="#" role="tab">Übersicht</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="alternate-tab" data-view="alternate" href="#" role="tab">Tägliche Ansicht</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard">
+    <!-- Charts -->
+    <div class="row" style="margin-left: 0px;">
+        <div id="classesChart" style="width:100%; max-width:900px; height:200px;"></div>
+    </div>
+
+    <div class="row" style="margin-left: 0px;">
+        <div id="histogram" style="width:100%; max-width:900px; height:500px;"></div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div id="TypeChart" style="width:100%; max-width:500px; height:500px;">
+            </div>
+        </div>
+        <div class="col">
+            <div id="CityChart" style="width:100%; max-width:500px; height:500px;">
+            </div>
+        </div>
+        <div class="col">
+            <div id="OperatorChart" style="width:100%; max-width:500px; height:500px;">
+            </div>
         </div>
     </div>
-    <div class="col">
-        <div id="CityChart" style="width:100%; max-width:500px; height:500px;">
+
+    <!-- Tables -->
+    <div class="row">
+        <div class="col">
+            <table class="table table-striped">
+                <thead class="thead-dark">
+                <tr>
+                    <th>Zug Typ</th>
+                    <th>Anzahl Fahrten</th>
+                    <th>Anteil in %</th>
+                </tr>
+                </thead>
+                <tbody id="traintypetable"></tbody>
+            </table>
+
+            <table class="table table-striped">
+                <thead class="thead-dark">
+                <tr>
+                    <th>Operator</th>
+                    <th>Anzahl Fahrten</th>
+                    <th>Anteil in %</th>
+                </tr>
+                </thead>
+                <tbody id="operatortable"></tbody>
+            </table>
+
+
+            <p class="text-muted mt-2">
+                Hinweis: Nicht alle Backends liefern einen Operator mit. Der "Anteil in %" wird auf alle Fahrten bezogen (auch ohne mitgelieferten Operator)!
+            </p>
         </div>
-    </div>
-    <div class="col">
-        <div id="OperatorChart" style="width:100%; max-width:500px; height:500px;">
+
+        <div class="col">
+            <table class="table table-striped">
+                <thead class="thead-dark">
+                <tr>
+                    <th>Stadt</th>
+                    <th>Anzahl Fahrten</th>
+                    <th>Anteil in %</th>
+                </tr>
+                </thead>
+                <tbody id="citytable"></tbody>
+            </table>
         </div>
     </div>
 </div>
 
-<!-- Tables -->
-<div class="row">
-    <div class="col">
-        <table class="table table-striped">
-            <thead class="thead-dark">
-            <tr>
-                <th>Zug Typ</th>
-                <th>Anzahl Fahrten</th>
-                <th>Anteil in %</th>
-            </tr>
-            </thead>
-            <tbody id="traintypetable"></tbody>
-        </table>
-
-        <table class="table table-striped">
-            <thead class="thead-dark">
-            <tr>
-                <th>Operator</th>
-                <th>Anzahl Fahrten</th>
-                <th>Anteil in %</th>
-            </tr>
-            </thead>
-            <tbody id="operatortable"></tbody>
-        </table>
-
-
-        <p class="text-muted mt-2">
-            Hinweis: Nicht alle Backends liefern einen Operator mit. Der "Anteil in %" wird auf alle Fahrten bezogen (auch ohne mitgelieferten Operator)!
-        </p>
-    </div>
-
-    <div class="col">
-        <table class="table table-striped">
-            <thead class="thead-dark">
-            <tr>
-                <th>Stadt</th>
-                <th>Anzahl Fahrten</th>
-                <th>Anteil in %</th>
-            </tr>
-            </thead>
-            <tbody id="citytable"></tbody>
-        </table>
-    </div>
+<div id="dailyView" class="d-none">
+    <p>Hier entsteht was neues :o</p>
 </div>
 
 <!-- Version notice -->
 <p>Ver. 1.0.1</p>
+
+<!-- Function to switch between tabs -->
+<script>
+    (function () {
+        function switchView(view) {
+            var main = document.getElementById('dashboard');
+            var daily = document.getElementById('dailyView');
+
+            if (view === 'dashboard') {
+                main.classList.remove('d-none');
+                daily.classList.add('d-none');
+            } else {
+                main.classList.add('d-none');
+                daily.classList.remove('d-none');
+            }
+        }
+
+        document.querySelectorAll('#viewSwitcher .nav-link').forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+                var view = el.getAttribute('data-view');
+
+                document.querySelectorAll('#viewSwitcher .nav-link').forEach(function (n) {
+                    n.classList.remove('active');
+                });
+                el.classList.add('active');
+
+                switchView(view);
+            });
+        });
+
+        switchView('dashboard');
+    })();
+</script>
 </body>
 
 </html>
