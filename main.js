@@ -80,7 +80,7 @@ window.onload = function() {
 
         let daylist = Object.entries(dayMap);
 
-        // Disable for debug
+        // Disable for prod
         console.log(daylist)
 
       //Variable that counts all rides
