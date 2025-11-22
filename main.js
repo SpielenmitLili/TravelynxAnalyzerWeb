@@ -63,8 +63,28 @@ window.onload = function() {
                 }
             }
 
-            //Variable that counts all rides
-            var allrides = typelist.length;
+        // Map train rides to dates
+        let dayMap = {};
+
+        for (let item of result) {
+            const id = item.id;
+            const timestamp = parseFloat(item.sched_dep_ts); // Unix-Timestamp
+            const date = new Date(timestamp * 1000).toISOString().split('T')[0]; // YYYY-MM-DD
+
+            if (!dayMap[date]) {
+                dayMap[date] = [];
+            }
+
+            dayMap[date].push(id);
+        }
+
+        let daylist = Object.entries(dayMap);
+
+        // Disable for debug
+        console.log(daylist)
+
+      //Variable that counts all rides
+      var allrides = typelist.length;
 
             //Make a List with removed Duplicates (e.g. ["ICE"],["ICE"],["RE"],["ICE"],["RE"] > ["ICE"],["RE"])
             typelistsorted = new Set(typelist)
