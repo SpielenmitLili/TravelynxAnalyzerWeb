@@ -3,9 +3,9 @@ Yet another Travelynx Tool made by me that this time can analyze your history.js
 
 reachable under [TravelynxAnalyzer](https://travelynxanalyzer.1lola.me/)
 
+All stats are calculated locally in your browser using JavaScript. 
 
 load your [travelynx](https://travelynx.de/history) ```history.json``` file on the index page
-
 
 ![Screenshot of Travelynx](https://github.com/thisjade/TravelynxAnalyzer/blob/70afc519f08f2045be6ed5b56fc6ddb171c5a6af/test.png)
 
@@ -18,3 +18,7 @@ after that you will see statistics like this
 ![Charts](https://github.com/thisjade/TravelynxAnalyzerWeb/blob/6259e9597f5d8d41f128660643fb23920e7a6f9d/stats.png)
 
 ![Table](https://github.com/thisjade/TravelynxAnalyzerWeb/blob/6259e9597f5d8d41f128660643fb23920e7a6f9d/table.png)
+
+## Extern Sources for data display
+
+- [line-colors by Träwelling](https://github.com/Traewelling/line-colors/) - This project is used to show the line colors in Dailyview
