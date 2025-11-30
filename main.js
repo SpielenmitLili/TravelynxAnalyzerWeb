@@ -1,6 +1,50 @@
 window.onload = function() {
-    document.getElementById('import').onclick = function() {
 
+    // Map Baureihen
+    let brMapping = [];
+
+    fetch("baureihen-mapping/baureihen.csv")
+        .then(response => response.text())
+        .then(csvText => {
+            const lines = csvText.split("\n").filter(line => line.trim() !== "");
+            const header = lines[0].split(";");
+
+            for (let i = 1; i < lines.length; i++) {
+                const cols = lines[i].split(";");
+                const row = {};
+                for (let j = 0; j < header.length; j++) {
+                    row[header[j]] = cols[j];
+                }
+
+                if (row.uic_regex && row.short_name) {
+                    try {
+                        const regex = new RegExp("^" + row.uic_regex);
+                        brMapping.push({
+                            regex: regex,
+                            shortName: row.short_name
+                        });
+                    } catch (e) {
+                        console.warn("Ungültige Regex:", row.uic_regex);
+                    }
+                }
+            }
+        });
+
+    function extractBaureihenRegex(uicRegex) {
+        const match = uicRegex.match(/^[0-9]{4}(.+)/);
+        return match ? match[1] : null;
+    }
+
+    function resolveShortName(fullUicCode) {
+        for (let entry of brMapping) {
+            if (entry.regex.test(fullUicCode)) {
+                return entry.shortName;
+            }
+        }
+        return null;
+    }
+
+    document.getElementById('import').onclick = function() {
         var files = document.getElementById('customFile').files;
 
         document.getElementById('import').disabled = true;
@@ -28,6 +72,8 @@ window.onload = function() {
             var hourlist = [];
             //List of operators (e.g. DB Fernverkehr AG)
             var operatorlist = [];
+            // List of BRs
+            var brlist = [];
 
             //Fill the List of Train Types
             for (var i in result) {
@@ -63,6 +109,26 @@ window.onload = function() {
                 }
             }
 
+            // Fill the list of BRs
+            for (var item of result) {
+                if (item.user_data && Array.isArray(item.user_data.wagongroups)) {
+                    for (var group of item.user_data.wagongroups) {
+                        if (Array.isArray(group.wagons) && group.wagons.length > 0) {
+                            var firstWagon = group.wagons[0];
+                            var id = firstWagon.id;
+                            if (
+                                typeof id === "string" &&
+                                id.length >= 8 &&
+                                /^[0-9]+$/.test(id) // prüft, ob die ID nur aus Ziffern besteht
+                            ) {
+                                var extracted = id.substring(4, 8);
+                                brlist.push(extracted);
+                            }
+                        }
+                    }
+                }
+            }
+
             //Variable that counts all rides
             var allrides = typelist.length;
 
@@ -71,6 +137,7 @@ window.onload = function() {
             citylistsorted = new Set(citylist)
             hourlistsorted = new Set(hourlist)
             operatorlistsorted = new Set(operatorlist)
+            brlistsorted = new Set(brlist)
 
             //Create a List of Traintypes with a counter of its occurances
             var typelistwithcounter = [];
@@ -149,6 +216,48 @@ window.onload = function() {
                 operatorlistwithcounter.push([operatorcounter, operator]);
             }
 
+            //Create a List of BRs with a counter of its occurances
+            var brlistwithcounter = [];
+            var brcounts = {};
+
+            for (let item of result) {
+                if (item.user_data && Array.isArray(item.user_data.wagongroups)) {
+                    for (let group of item.user_data.wagongroups) {
+                        if (Array.isArray(group.wagons) && group.wagons.length > 0) {
+                            let firstWagon = group.wagons[0];
+                            let id = firstWagon.id;
+                            // only numbers | skips for example ECs by ÖBB, CD etc.
+                            if (
+                                typeof id === "string" &&
+                                id.length >= 8 &&
+                                /^[0-9]+$/.test(id)
+                            ) {
+                                let br = id.substring(4, 8);
+                                let resolvedName = resolveShortName(id);
+
+                                if (resolvedName) {
+                                    brcounts[resolvedName] = (brcounts[resolvedName] || 0) + 1;
+                                } else {
+                                    // Some fixes for BRs not resolved yet
+                                    if (br == "812" || br == "5812") { // ICE 4
+                                        br = "ICE 4"
+                                        brcounts[parseInt(br)] = (brcounts[parseInt(br)] || 0) + 1;
+                                    } else if (br == "3681" || br == "2635" || br == "8635" || br == "8681" || br == "2675" || br == "2681" || br == "3635") { // Einzelne Wagen
+                                        // Skip for now
+                                    } else {
+                                        brcounts[parseInt(br)] = (brcounts[parseInt(br)] || 0) + 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (let br in brcounts) {
+                brlistwithcounter.push([brcounts[br], br]);
+            }
+
             //Create Sorted List that sorts the list descending by the counter
             sortedhourlistwithcounter = hourlistwithcounter.sort(function(a, b) {
                 return a[0] - b[0];
@@ -162,7 +271,9 @@ window.onload = function() {
             sortedoperatorlistwithcounter = operatorlistwithcounter.sort(function(a, b) {
                 return b[0] - a[0];
             });
-
+            sortedbrlistwithcounter = brlistwithcounter.sort(function(a, b) {
+                return b[0] - a[0];
+            });
 
             //function to round number to 2 decimals
             function roundToTwo(num) {
@@ -174,7 +285,7 @@ window.onload = function() {
 
             //Filters for Classification
             var FVFilter = ["ICE", "IC", "FLX", "EC", "ECE", "THA", "RJ", "RJX", "WB", "NJ", "D", "TGV", "UEX", "R", "EST", "FR", "ICN", "EN", "ICD", "EIC", "EC ", "LONG_DISTANCE", "NZ", "ICE ", "NJ", "HIGHSPEED_RAIL", "NIGHT_RAIL", "OGV", "ECD", "ECB"];
-            var NVFilter = ["RB", "HLB", "S", "RE", "VIA", "RT", "TL", "FEX", "ME", "WFB", "TLX", "Os", "OPB", "ERX", "NBE", "NWB", "AKN", "TRI", "EB", "EVB", "STx", "ENO", "DWE", "ARV", "FEX", "TER", "IR", "IRE", "SWE", "STN", "REGIONAL_FAST_RAIL", "IR ", "RB ", "REX", "R-Bahn", "REGIONAL_RAIL", "R", "Regionalzug", "MEX", "SMD", "SBB", "ag", "RRB", "RTB", "BRB"];
+            var NVFilter = ["RB", "HLB", "S", "RE", "VIA", "RT", "TL", "FEX", "ME", "WFB", "TLX", "Os", "OPB", "ERX", "NBE", "NWB", "AKN", "TRI", "EB", "EVB", "STx", "ENO", "DWE", "ARV", "FEX", "TER", "IR", "IRE", "SWE", "STN", "REGIONAL_FAST_RAIL", "IR ", "RB ", "REX", "R-Bahn", "REGIONAL_RAIL", "R", "Regionalzug", "MEX", "SMD", "SBB", "ag", "RRB", "RTB", "BRB", "SCF", "BZB"];
             var BusFilter = ["Bus", "BUS", "NachtBus", "Niederflurbus", "Stadtbus", "MetroBus", "PlusBus", "Landbus", "Regionalbus", "RegionalBus", "SB", "ExpressBus", "BSV", "RVV-Bus-Linie", "Buslinie", "Omnibus", "RegioBus"];
             var STRFilter = ["STR", "Trm", "Tram", "Straßenbahn", "TRAM", "STB", "RNV", "Strb", "NachtTram", "Stadtbahn", "Niederflurstrab"];
             var UFilter = ["U-Bahn", "U", "Metro", "SUBWAY", "METRO", "M", "UBAHN"];
@@ -306,6 +417,30 @@ window.onload = function() {
             //Create a table for the operators
             for (item of sortedoperatorlistwithcounter) {
                 var table = document.getElementById("operatortable");
+
+                var cell = document.createElement("td");
+                var celltext = document.createTextNode(item[1]);
+                cell.appendChild(celltext);
+
+                var countercell = document.createElement("td");
+                var countercelltext = document.createTextNode(item[0]);
+                countercell.appendChild(countercelltext);
+
+                var percentagecell = document.createElement("td");
+                var percentagecelltext = document.createTextNode(roundToTwo((100 * item[0]) / allrides) + "%");
+                percentagecell.appendChild(percentagecelltext);
+
+                var row = document.createElement("tr");
+                row.appendChild(cell);
+                row.appendChild(countercell);
+                row.appendChild(percentagecell);
+
+                table.appendChild(row);
+            }
+
+            //Create a table for the brs
+            for (item of sortedbrlistwithcounter) {
+                var table = document.getElementById("brtable");
 
                 var cell = document.createElement("td");
                 var celltext = document.createTextNode(item[1]);
