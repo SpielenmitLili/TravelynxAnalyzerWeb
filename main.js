@@ -220,39 +220,73 @@ window.onload = function() {
             var brlistwithcounter = [];
             var brcounts = {};
 
-            for (let item of result) {
-                if (item.user_data && Array.isArray(item.user_data.wagongroups)) {
-                    for (let group of item.user_data.wagongroups) {
-                        if (Array.isArray(group.wagons) && group.wagons.length > 0) {
-                            let firstWagon = group.wagons[0];
-                            let id = firstWagon.id;
-                            // only numbers | skips for example ECs by ÖBB, CD etc.
-                            if (
-                                typeof id === "string" &&
-                                id.length >= 8 &&
-                                /^[0-9]+$/.test(id)
-                            ) {
-                                let br = id.substring(4, 8);
-                                let resolvedName = resolveShortName(id);
+            //for (let item of result) {
+            //    if (item.user_data && Array.isArray(item.user_data.wagongroups)) {
+            //        for (let group of item.user_data.wagongroups) {
+            //            if (Array.isArray(group.wagons) && group.wagons.length > 0) {
+            //                let firstWagon = group.wagons[0];
+            //                let id = firstWagon.id;
+            //                // only numbers | skips for example ECs by ÖBB, CD etc.
+            //                if (
+            //                    typeof id === "string" &&
+            //                    id.length >= 8 &&
+            //                    /^[0-9]+$/.test(id)
+            //                ) {
+            //                    let br = id.substring(4, 8);
+            //                    let resolvedName = resolveShortName(id);
 
-                                if (resolvedName) {
-                                    brcounts[resolvedName] = (brcounts[resolvedName] || 0) + 1;
+            //                    if (resolvedName) {
+            //                        brcounts[resolvedName] = (brcounts[resolvedName] || 0) + 1;
+            //                    } else {
+            //                        // Some fixes for BRs not resolved yet
+            //                        if (br == "812" || br == "5812") { // ICE 4
+            //                            br = "ICE 4"
+            //                            brcounts[parseInt(br)] = (brcounts[parseInt(br)] || 0) + 1;
+            //                        } else if (br == "3681" || br == "2635" || br == "8635" || br == "8681" || br == "2675" || br == "2681" || br == "3635") { // Einzelne Wagen
+            //                            // Skip for now
+            //                        } else {
+            //                            brcounts[parseInt(br)] = (brcounts[parseInt(br)] || 0) + 1;
+            //                        }
+            //                    }
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+
+            // Baureihencounting but only count first wagon group
+            for (let item of result) {
+                if (item.user_data && Array.isArray(item.user_data.wagongroups) && item.user_data.wagongroups.length > 0) {
+                    let firstGroup = item.user_data.wagongroups[0];
+
+                    if (Array.isArray(firstGroup.wagons) && firstGroup.wagons.length > 0) {
+                        let firstWagon = firstGroup.wagons[0];
+                        let id = firstWagon.id;
+
+                        // Nur IDs, die aus Zahlen bestehen und mindestens 8 Zeichen haben
+                        if (typeof id === "string" && id.length >= 8 && /^[0-9]+$/.test(id)) {
+                            let br = id.substring(4, 8);
+                            let resolvedName = resolveShortName(id);
+
+                            if (resolvedName) {
+                                brcounts[resolvedName] = (brcounts[resolvedName] || 0) + 1;
+                            } else {
+                                // Fixes für nicht aufgelöste BRs
+                                if (br === "812" || br === "5812") { // ICE 4
+                                    brcounts["ICE 4"] = (brcounts["ICE 4"] || 0) + 1;
+                                } else if (
+                                    ["3681", "2635", "8635", "8681", "2675", "2681", "3635"].includes(br)
+                                ) {
+                                    // Überspringen
                                 } else {
-                                    // Some fixes for BRs not resolved yet
-                                    if (br == "812" || br == "5812") { // ICE 4
-                                        br = "ICE 4"
-                                        brcounts[parseInt(br)] = (brcounts[parseInt(br)] || 0) + 1;
-                                    } else if (br == "3681" || br == "2635" || br == "8635" || br == "8681" || br == "2675" || br == "2681" || br == "3635") { // Einzelne Wagen
-                                        // Skip for now
-                                    } else {
-                                        brcounts[parseInt(br)] = (brcounts[parseInt(br)] || 0) + 1;
-                                    }
+                                    brcounts[parseInt(br)] = (brcounts[parseInt(br)] || 0) + 1;
                                 }
                             }
                         }
                     }
                 }
             }
+
 
             for (let br in brcounts) {
                 brlistwithcounter.push([brcounts[br], br]);
