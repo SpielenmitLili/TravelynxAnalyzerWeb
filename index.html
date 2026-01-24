@@ -115,6 +115,24 @@
 
 <div id="dailyView" class="d-none">
     <p>Hier entsteht was neues :o</p>
+
+
+    <label for="termin">Fahrtdatum auswählen:</label>
+    <input id="termin" type="text" placeholder="TT.MM.JJJJ" readonly />
+
+    <div class="calendar" aria-label="Datumsauswahl">
+        <div class="cal-header">
+            <button id="prev" aria-label="Vorheriger Monat">&larr;</button>
+            <div class="cal-header-title" id="cal-title" aria-live="polite"></div>
+            <button id="next" aria-label="Nächster Monat">&rarr;</button>
+        </div>
+        <div class="grid" id="dow">
+            <div class="dow">Mo</div><div class="dow">Di</div><div class="dow">Mi</div>
+            <div class="dow">Do</div><div class="dow">Fr</div><div class="dow">Sa</div><div class="dow">So</div>
+        </div>
+        <div class="grid" id="days" role="grid" aria-readonly="true"></div>
+    </div>
+
 </div>
 
 <!-- Version notice -->
