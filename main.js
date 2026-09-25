@@ -173,7 +173,7 @@ window.onload = function() {
             var Klassifizierung = [];
 
             //Filters for Classification
-            var FVFilter = [ "D", "ECB", "EC", "EC ", "ECD", "ECE", "EIC", "EN", "ES", "EST", "EUR", "FLX", "FR", "GV", "HIGHSPEED_RAIL", "IC", "ICD", "ICE", "ICE ", "ICN", "LE", "LONG_DISTANCE", "NIGHT_RAIL", "NJ", "NJ", "NZ", "OGV", "R", "RJ", "RJX", "TGV", "THA", "UEX", "UEX", "WB" ];
+            var FVFilter = [ "D", "ECB", "EC", "EC ", "ECD", "ECE", "EIC", "EIP", "EN", "ES", "EST", "EUR", "FLX", "FR", "GV", "HIGHSPEED_RAIL", "IC", "ICD", "ICE", "ICE ", "ICN", "LE", "LONG_DISTANCE", "NIGHT_RAIL", "NJ", "NJ", "NZ", "OGV", "R", "RJ", "RJX", "TGV", "THA", "UEX", "UEX", "WB" ];
             var NVFilter = [ "ABR", "ag", "AKN", "ALX", "ARV", "AVG", "BRB", "CAN", "CB", "CJX", "DWE", "EB", "ENO", "ERB", "erx", "EVB", "FEX", "HLB", "IR", "IR ", "IRE", "MDS", "ME", "MEX", "MRB", "NBE", "NWB", "NX", "OE", "OPB", "Os", "R", "R-Bahn", "RB", "RB ", "RE", "REGIONAL_FAST_RAIL", "REGIONAL_RAIL", "Regionalzug", "REX", "RRB", "RS", "RT", "RTB", "S", "SBB", "SBH", "SCB", "SCF", "SMD", "STN", "STx", "SWE", "TER", "TL", "TLX", "TRI", "VBG", "VIA", "vlx", "WBA", "WFB" ];
             var BusFilter = [ "BSV", "BUS", "Bus", "Buslinie", "ExpressBus", "Landbus", "MetroBus", "NachtBus", "Niederflurbus", "Omnibus", "PlusBus", "RegionalBus", "Regionalbus", "RegioBus", "RVV-Bus-Linie", "SB", "StadtBus", "Stadtbus" ];
             var STRFilter = [ "NachtTram", "Niederflurstrab", "RNV", "STB", "Stadtbahn", "Strb", "STR", "Straßenbahn", "Stb", "TRAM", "Tram", "Trm" ];
